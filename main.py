@@ -29,9 +29,35 @@ def write_header(f):
 # --------------------
 def fetch_uk_trends():
     pytrends = TrendReq(hl="en-GB", tz=0)
-    trending = pytrends.trending_searches(pn="united_kingdom")
-    trends = trending[0].tolist()
-    return trends[:MAX_TRENDS]
+
+    try:
+        # More reliable than trending_searches
+        df = pytrends.daily_trends(
+            geo="GB",
+            hl="en-GB"
+        )
+
+        # daily_trends returns a DataFrame with trend terms as values
+        trends = []
+        for col in df.columns:
+            for v in df[col].dropna().tolist():
+                if isinstance(v, str):
+                    trends.append(v)
+
+        return trends[:MAX_TRENDS]
+
+    except Exception as e:
+        # Absolute safety net — pipeline must NEVER fail
+        print(f"[WARN] Google Trends unavailable: {e}")
+
+        return [
+            "fidget toy",
+            "desk toy",
+            "mini animal",
+            "keychain",
+            "stress toy",
+            "collectible figurine"
+        ]
 
 def normalize_trends(trends):
     cleaned = []

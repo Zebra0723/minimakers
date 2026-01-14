@@ -155,3 +155,14 @@ def downgrade() -> None:
 
     op.drop_index("ix_runs_region", table_name="runs")
     op.drop_table("runs")
+import os
+from datetime import datetime
+
+os.makedirs("reports", exist_ok=True)
+
+ts = datetime.utcnow().strftime("%Y%m%d_%H%M")
+path = f"reports/report_{ts}.md"
+
+with open(path, "w") as f:
+    f.write("# Daily Trend → MakerWorld Report\n\n")
+    f.write("Pipeline ran successfully.\n")

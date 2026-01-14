@@ -114,9 +114,9 @@ def main():
     trends = normalize_trends(trends_raw)
 
     with open(path, "w", encoding="utf-8") as f:
-        write_header(f)
-        write_trends_section(f, trends)
-        write_next_steps(f)
+    write_header(f)
+    write_trends_section(f, trends)
+    write_makerworld_section(f, trends)
 
     print(f"Report written to {path}")
 

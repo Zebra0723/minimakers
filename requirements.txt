@@ -1,3 +1,4 @@
 pytrends
 pandas
 requests
+beautifulsoup4

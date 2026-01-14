@@ -78,6 +78,62 @@ def normalize_trends(trends):
         cleaned.append(t_clean)
 
     return cleaned
+def search_makerworld(keyword, max_results=3):
+    """
+    Very lightweight MakerWorld search.
+    Returns a list of (title, url).
+    """
+    base_url = "https://makerworld.com/en/search"
+    params = {
+        "q": keyword
+    }
+
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
+
+    try:
+        r = requests.get(base_url, params=params, headers=headers, timeout=10)
+        r.raise_for_status()
+    except Exception as e:
+        print(f"[WARN] MakerWorld search failed for '{keyword}': {e}")
+        return []
+
+    soup = BeautifulSoup(r.text, "html.parser")
+
+    results = []
+    for a in soup.select("a[href*='/models/']"):
+        title = a.get_text(strip=True)
+        href = a.get("href")
+
+        if not title or not href:
+            continue
+
+        title_lower = title.lower()
+        if any(x in title_lower for x in ["fidget", "toy", "mini", "keychain"]):
+            results.append((title, "https://makerworld.com" + href))
+
+        if len(results) >= max_results:
+            break
+
+    return results
+    def write_makerworld_section(f, trends):
+    f.write("## MakerWorld Model Matches (Blind-Box Friendly)\n\n")
+
+    for trend in trends:
+        f.write(f"### {trend}\n")
+
+        models = search_makerworld(trend)
+
+        if not models:
+            f.write("- No suitable small models found\n\n")
+            continue
+
+        for title, url in models:
+            f.write(f"- [{title}]({url})\n")
+
+        f.write("\n")
+        time.sleep(1)
 
 # --------------------
 # Report

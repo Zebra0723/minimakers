@@ -168,7 +168,7 @@ def main():
     trends_raw = fetch_uk_trends()
     trends = normalize_trends(trends_raw)
 
-    with open(path, "w", encoding="utf-8") as f:
+with open(path, "w", encoding="utf-8") as f:
     write_header(f)
     write_trends_section(f, trends)
     write_makerworld_section(f, trends)

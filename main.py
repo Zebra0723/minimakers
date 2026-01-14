@@ -116,10 +116,10 @@ def search_makerworld(keyword, max_results=3):
         if len(results) >= max_results:
             break
 
-    return results
-    def write_makerworld_section(f, trends):
+    return resultsdef write_makerworld_section(f, trends):
     f.write("## MakerWorld Model Matches (Blind-Box Friendly)\n\n")
-        for trend in trends:
+
+    for trend in trends:
         f.write(f"### {trend}\n")
 
         models = search_makerworld(trend)
@@ -133,7 +133,6 @@ def search_makerworld(keyword, max_results=3):
 
         f.write("\n")
         time.sleep(1)
-
 # --------------------
 # Report
 # --------------------

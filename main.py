@@ -117,7 +117,7 @@ def search_makerworld(keyword, max_results=3):
             break
 
     return results
-    def write_makerworld_section(f, trends):
+def write_makerworld_section(f, trends):
     f.write("## MakerWorld Model Matches (Blind-Box Friendly)\n\n")
 
     for trend in trends:

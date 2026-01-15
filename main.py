@@ -78,93 +78,44 @@ def normalize_trends(trends):
         cleaned.append(t_clean)
 
     return cleaned
-def search_makerworld(keyword, max_results=3):
+def search_makerworld(keyword, max_results=5):
     """
-    Very lightweight MakerWorld search.
+    Uses MakerWorld's search API (the same one the website uses).
     Returns a list of (title, url).
     """
-    base_url = "https://makerworld.com/en/search"
+    api_url = "https://makerworld.com/api/search/models"
+
     params = {
-        "q": keyword
+        "keyword": keyword,
+        "page": 1,
+        "pageSize": max_results,
+        "sort": "hot"
     }
 
     headers = {
-        "User-Agent": "Mozilla/5.0"
+        "User-Agent": "Mozilla/5.0",
+        "Accept": "application/json"
     }
 
     try:
-        r = requests.get(base_url, params=params, headers=headers, timeout=10)
+        r = requests.get(api_url, params=params, headers=headers, timeout=15)
         r.raise_for_status()
+        data = r.json()
     except Exception as e:
-        print(f"[WARN] MakerWorld search failed for '{keyword}': {e}")
+        print(f"[WARN] MakerWorld API failed for '{keyword}': {e}")
         return []
 
-    soup = BeautifulSoup(r.text, "html.parser")
-
     results = []
-    for a in soup.select("a[href*='/models/']"):
-        title = a.get_text(strip=True)
-        href = a.get("href")
 
-        if not title or not href:
+    for item in data.get("data", {}).get("list", []):
+        title = item.get("title")
+        slug = item.get("slug")
+
+        if not title or not slug:
             continue
 
-        title_lower = title.lower()
-        if any(x in title_lower for x in ["fidget", "toy", "mini", "keychain"]):
-            results.append((title, "https://makerworld.com" + href))
-
-        if len(results) >= max_results:
-            break
-
-    return results
-def search_makerworld(keyword, max_results=3):
-    """
-    Robust MakerWorld search.
-    Returns a list of (title, url).
-    """
-    url = f"https://makerworld.com/en/search?q={keyword.replace(' ', '%20')}"
-    headers = {"User-Agent": "Mozilla/5.0"}
-
-    try:
-        r = requests.get(url, headers=headers, timeout=15)
-        r.raise_for_status()
-    except Exception as e:
-        print(f"[WARN] MakerWorld request failed for '{keyword}': {e}")
-        return []
-
-    soup = BeautifulSoup(r.text, "html.parser")
-
-    results = []
-    seen = set()
-
-    # MakerWorld links usually contain /model or /models
-    for a in soup.find_all("a", href=True):
-        href = a["href"]
-
-        if not any(x in href for x in ["/model", "/models"]):
-            continue
-
-        title = a.get_text(strip=True)
-
-        if not title:
-            continue
-
-        title_lower = title.lower()
-
-        # Light filtering only (do NOT overfilter yet)
-        if not any(x in title_lower for x in ["toy", "fidget", "mini", "key", "animal", "figure"]):
-            continue
-
-        full_url = "https://makerworld.com" + href
-
-        if full_url in seen:
-            continue
-
-        seen.add(full_url)
-        results.append((title, full_url))
-
-        if len(results) >= max_results:
-            break
+        url = f"https://makerworld.com/en/models/{slug}"
+        results.append((title, url))
 
     return results
 # --------------------

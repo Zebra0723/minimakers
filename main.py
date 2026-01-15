@@ -164,7 +164,8 @@ def write_next_steps(f):
 def main():
     ensure_reports_dir()
 
-    path = report_path()   # ✅ THIS LINE IS MISSING
+    # ✅ DEFINE PATH FIRST
+    path = report_path()
 
     trends_raw = fetch_uk_trends()
     trends = normalize_trends(trends_raw)
@@ -173,13 +174,5 @@ def main():
         write_header(f)
         write_trends_section(f, trends)
         write_makerworld_section(f, trends)
-
-with open(path, "w", encoding="utf-8") as f:
-    write_header(f)
-    write_trends_section(f, trends)
-    write_makerworld_section(f, trends)
-
-    print(f"Report written to {path}")
-
 if __name__ == "__main__":
     main()

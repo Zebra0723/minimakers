@@ -117,23 +117,56 @@ def search_makerworld(keyword, max_results=3):
             break
 
     return results
-def write_makerworld_section(f, trends):
-    f.write("## MakerWorld Model Matches (Blind-Box Friendly)\n\n")
+def search_makerworld(keyword, max_results=3):
+    """
+    Robust MakerWorld search.
+    Returns a list of (title, url).
+    """
+    url = f"https://makerworld.com/en/search?q={keyword.replace(' ', '%20')}"
+    headers = {"User-Agent": "Mozilla/5.0"}
 
-    for trend in trends:
-        f.write(f"### {trend}\n")
+    try:
+        r = requests.get(url, headers=headers, timeout=15)
+        r.raise_for_status()
+    except Exception as e:
+        print(f"[WARN] MakerWorld request failed for '{keyword}': {e}")
+        return []
 
-        models = search_makerworld(trend)
+    soup = BeautifulSoup(r.text, "html.parser")
 
-        if not models:
-            f.write("- No suitable small models found\n\n")
+    results = []
+    seen = set()
+
+    # MakerWorld links usually contain /model or /models
+    for a in soup.find_all("a", href=True):
+        href = a["href"]
+
+        if not any(x in href for x in ["/model", "/models"]):
             continue
 
-        for title, url in models:
-            f.write(f"- [{title}]({url})\n")
+        title = a.get_text(strip=True)
 
-        f.write("\n")
-        time.sleep(1)
+        if not title:
+            continue
+
+        title_lower = title.lower()
+
+        # Light filtering only (do NOT overfilter yet)
+        if not any(x in title_lower for x in ["toy", "fidget", "mini", "key", "animal", "figure"]):
+            continue
+
+        full_url = "https://makerworld.com" + href
+
+        if full_url in seen:
+            continue
+
+        seen.add(full_url)
+        results.append((title, full_url))
+
+        if len(results) >= max_results:
+            break
+
+    return results
 # --------------------
 # Report
 # --------------------

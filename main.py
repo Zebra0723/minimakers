@@ -37,20 +37,20 @@ def write_trends_section(f, trends):
 
 def write_makerworld_section(f, trends):
     f.write("## MakerWorld Model Matches (Blind-Box Friendly)\n\n")
+    f.write(
+        "_Automated MakerWorld search is unavailable from cloud runners._\n"
+        "_Use the keywords below for manual or local search._\n\n"
+    )
 
     for trend in trends:
-        f.write(f"### {trend}\n")
-        models = search_makerworld(trend)
+        f.write(f"- **{trend}**\n")
 
-        if not models:
-            f.write("- No suitable models found\n\n")
-            continue
-
-        for title, url in models:
-            f.write(f"- [{title}]({url})\n")
-
-        f.write("\n")
-        time.sleep(1)
+    f.write(
+        "\nRecommended search filters on MakerWorld:\n"
+        "- Sort: Hot\n"
+        "- Category: Toys / Gadgets\n"
+        "- Keywords: fidget, mini, keychain, toy\n"
+    )
 
 # =========================
 # Google Trends (SAFE)
